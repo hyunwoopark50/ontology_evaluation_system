@@ -46,27 +46,47 @@
   .stat-card.minor .stat-val { color: #6b7280; }
 
   .pitfall-section { background: #fff; border-radius: 10px; border: 1px solid #e5e5e5; padding: 1.5rem; }
-  .pitfall-section h2 { font-size: 15px; font-weight: 500; margin-bottom: 1rem; color: #333; }
+  .pitfall-section h2 { font-size: 15px; font-weight: 500; margin-bottom: 4px; color: #333; }
+  .pitfall-section .sub { font-size: 12px; color: #888; margin-bottom: 1rem; }
 
   .pitfall-list { display: flex; flex-direction: column; gap: 10px; }
-  .pitfall-item { border: 1px solid #e5e5e5; border-radius: 8px; padding: 12px 14px; }
-  .pitfall-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
+
+  .pitfall-item { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; }
+  .pitfall-item.critical { border-left: 3px solid #dc2626; }
+  .pitfall-item.important { border-left: 3px solid #d97706; }
+  .pitfall-item.minor { border-left: 3px solid #9ca3af; }
+
+  .pitfall-header { display: flex; align-items: center; gap: 8px; padding: 11px 14px; cursor: pointer; user-select: none; }
+  .pitfall-header:hover { background: #fafafa; }
+
+  .badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; text-transform: uppercase; white-space: nowrap; }
   .badge.critical { background: #fee2e2; color: #dc2626; }
   .badge.important { background: #fef3c7; color: #d97706; }
   .badge.minor { background: #f3f4f6; color: #6b7280; }
-  .pitfall-code { font-size: 12px; font-family: monospace; color: #888; }
-  .pitfall-name { font-size: 13px; font-weight: 500; color: #1a1a1a; }
-  .pitfall-desc { font-size: 12px; color: #666; line-height: 1.6; }
-  .pitfall-affected { font-size: 11px; color: #888; margin-top: 4px; }
 
-  .empty-state { text-align: center; padding: 2.5rem; color: #888; }
-  .empty-state .icon { font-size: 36px; display: block; margin-bottom: 10px; }
+  .pitfall-code { font-size: 11px; font-family: monospace; color: #999; background: #f3f4f6; padding: 1px 6px; border-radius: 3px; }
+  .pitfall-title { flex: 1; }
+  .pitfall-name-ko { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+  .pitfall-name-en { font-size: 11px; color: #888; margin-top: 1px; }
+  .pitfall-affected-badge { font-size: 11px; color: #6b7280; white-space: nowrap; }
+  .chevron { font-size: 12px; color: #aaa; transition: transform .2s; }
+  .pitfall-item.open .chevron { transform: rotate(180deg); }
 
-  .error-box { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 14px; color: #dc2626; font-size: 13px; margin-bottom: 1rem; }
+  .pitfall-body { display: none; padding: 0 14px 14px; border-top: 1px solid #f0f0f0; }
+  .pitfall-item.open .pitfall-body { display: block; }
+
+  .pitfall-desc { font-size: 13px; color: #444; line-height: 1.7; margin-top: 12px; }
+  .pitfall-fix-wrap { margin-top: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 10px 12px; }
+  .pitfall-fix-label { font-size: 11px; font-weight: 600; color: #16a34a; margin-bottom: 4px; }
+  .pitfall-fix { font-size: 12px; color: #166534; line-height: 1.6; }
+
+  .affected-wrap { margin-top: 10px; }
+  .affected-label { font-size: 11px; font-weight: 600; color: #666; margin-bottom: 6px; }
+  .affected-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .affected-tag { font-size: 11px; font-family: monospace; background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 4px; border: 1px solid #e5e7eb; }
 
   .info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; color: #1d4ed8; font-size: 12px; margin-bottom: 1rem; }
-
+  .error-box { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 12px 14px; color: #dc2626; font-size: 13px; margin-bottom: 1rem; }
   .no-pitfall { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1.5rem; text-align: center; color: #16a34a; font-size: 14px; }
 </style>
 </head>
@@ -74,7 +94,7 @@
 
 <div class="header">
   <h1>Ontology Evaluation System</h1>
-  <span class="badge">OOPS! + KNUT</span>
+  <span class="badge" style="background:#16213e;border:1px solid #0f3460;color:#e94560">OOPS! + KNUT</span>
 </div>
 
 <div class="main">
@@ -103,6 +123,7 @@
     <div class="stats-grid" id="stats-grid"></div>
     <div class="pitfall-section">
       <h2>OOPS! 검사 결과</h2>
+      <p class="sub">각 항목을 클릭하면 상세 설명과 수정 방법을 확인할 수 있습니다</p>
       <div id="pitfall-body"></div>
     </div>
   </div>
@@ -110,8 +131,8 @@
 
 <script>
 const ontoInput = document.getElementById('input-onto');
-const pdfInput = document.getElementById('input-pdf');
-const runBtn = document.getElementById('run-btn');
+const pdfInput  = document.getElementById('input-pdf');
+const runBtn    = document.getElementById('run-btn');
 
 function setupZone(input, zoneId, fnameId) {
   input.addEventListener('change', () => {
@@ -122,13 +143,11 @@ function setupZone(input, zoneId, fnameId) {
     if (input === ontoInput) runBtn.disabled = false;
   });
 }
-
 setupZone(ontoInput, 'zone-onto', 'fname-onto');
-setupZone(pdfInput, 'zone-pdf', 'fname-pdf');
+setupZone(pdfInput,  'zone-pdf',  'fname-pdf');
 
 runBtn.addEventListener('click', async () => {
   if (!ontoInput.files[0]) return;
-
   runBtn.disabled = true;
   runBtn.innerHTML = '<span class="spinner"></span>평가 중...';
   document.getElementById('results').classList.remove('show');
@@ -138,21 +157,18 @@ runBtn.addEventListener('click', async () => {
   if (pdfInput.files[0]) fd.append('pdf', pdfInput.files[0]);
 
   try {
-    const res = await fetch('/evaluate', { method: 'POST', body: fd });
+    const res  = await fetch('/evaluate', { method: 'POST', body: fd });
     const data = await res.json();
 
     if (data.error) {
       document.getElementById('results').classList.add('show');
       document.getElementById('stats-grid').innerHTML = '';
-      document.getElementById('pitfall-body').innerHTML =
-        `<div class="error-box">❌ ${data.error}</div>`;
+      document.getElementById('pitfall-body').innerHTML = `<div class="error-box">❌ ${data.error}</div>`;
       return;
     }
-
     renderStats(data.stats);
     renderPitfalls(data.pitfalls, data.oops_error, data.filename, data.format);
     document.getElementById('results').classList.add('show');
-
   } catch(e) {
     alert('요청 실패: ' + e.message);
   } finally {
@@ -163,55 +179,64 @@ runBtn.addEventListener('click', async () => {
 
 function renderStats(s) {
   document.getElementById('stats-grid').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-val">${s.total}</div>
-      <div class="stat-label">전체 pitfall</div>
-    </div>
-    <div class="stat-card critical">
-      <div class="stat-val">${s.critical}</div>
-      <div class="stat-label">Critical</div>
-    </div>
-    <div class="stat-card important">
-      <div class="stat-val">${s.important}</div>
-      <div class="stat-label">Important</div>
-    </div>
-    <div class="stat-card minor">
-      <div class="stat-val">${s.minor}</div>
-      <div class="stat-label">Minor</div>
-    </div>
+    <div class="stat-card"><div class="stat-val">${s.total}</div><div class="stat-label">전체 pitfall</div></div>
+    <div class="stat-card critical"><div class="stat-val">${s.critical}</div><div class="stat-label">Critical</div></div>
+    <div class="stat-card important"><div class="stat-val">${s.important}</div><div class="stat-label">Important</div></div>
+    <div class="stat-card minor"><div class="stat-val">${s.minor}</div><div class="stat-label">Minor</div></div>
   `;
 }
 
 function renderPitfalls(pitfalls, oopsError, filename, fmt) {
-  let html = '';
-
-  html += `<div class="info-box">파일: <strong>${filename}</strong> — 포맷: <strong>${fmt}</strong>으로 변환 후 OOPS! 검사 완료</div>`;
-
-  if (oopsError) {
-    html += `<div class="error-box">⚠️ OOPS! 오류: ${oopsError}</div>`;
-  }
+  let html = `<div class="info-box">파일: <strong>${filename}</strong> — 포맷: <strong>${fmt}</strong>으로 변환 후 OOPS! 검사 완료</div>`;
+  if (oopsError) html += `<div class="error-box">⚠️ ${oopsError}</div>`;
 
   if (!pitfalls || pitfalls.length === 0) {
     html += `<div class="no-pitfall">✅ Pitfall이 감지되지 않았습니다!</div>`;
   } else {
     html += '<div class="pitfall-list">';
     for (const p of pitfalls) {
-      const imp = (p.importance || 'MINOR').toLowerCase();
+      const imp  = (p.importance || 'MINOR').toLowerCase();
+      const tags = (p.affected_elements || [])
+        .filter(e => e)
+        .map(e => {
+          const short = e.split(/[/#:]/).pop() || e;
+          return `<span class="affected-tag" title="${e}">${short}</span>`;
+        }).join('');
+
       html += `
-        <div class="pitfall-item">
+        <div class="pitfall-item ${imp}" onclick="toggleItem(this)">
           <div class="pitfall-header">
-            <span class="badge ${imp}">${p.importance || 'MINOR'}</span>
-            <span class="pitfall-code">${p.code || ''}</span>
+            <span class="badge ${imp}">${p.importance}</span>
+            <span class="pitfall-code">${p.code}</span>
+            <div class="pitfall-title">
+              <div class="pitfall-name-ko">${p.name_ko || p.name_en}</div>
+              ${p.name_ko && p.name_ko !== p.name_en ? `<div class="pitfall-name-en">${p.name_en}</div>` : ''}
+            </div>
+            <span class="pitfall-affected-badge">영향 ${p.affected}개</span>
+            <span class="chevron">▼</span>
           </div>
-          <div class="pitfall-name">${p.name || ''}</div>
-          ${p.description ? `<div class="pitfall-desc">${p.description}</div>` : ''}
-          ${p.affected !== undefined ? `<div class="pitfall-affected">영향 받는 요소: ${p.affected}개</div>` : ''}
+          <div class="pitfall-body">
+            <div class="pitfall-desc">${p.description_ko || p.description_en || ''}</div>
+            ${p.fix ? `
+            <div class="pitfall-fix-wrap">
+              <div class="pitfall-fix-label">✏️ 수정 방법</div>
+              <div class="pitfall-fix">${p.fix}</div>
+            </div>` : ''}
+            ${tags ? `
+            <div class="affected-wrap">
+              <div class="affected-label">영향 받는 요소</div>
+              <div class="affected-tags">${tags}</div>
+            </div>` : ''}
+          </div>
         </div>`;
     }
     html += '</div>';
   }
-
   document.getElementById('pitfall-body').innerHTML = html;
+}
+
+function toggleItem(el) {
+  el.classList.toggle('open');
 }
 </script>
 </body>
