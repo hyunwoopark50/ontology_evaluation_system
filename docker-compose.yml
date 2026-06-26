@@ -1,0 +1,21 @@
+services:
+  oops:
+    build:
+      context: ./oops-src
+    container_name: oops
+    ports:
+      - "20104:8080"
+    volumes:
+      - ./oops-src/WordNet:/usr/local/tomcat/WordNet
+    restart: unless-stopped
+
+  eval-app:
+    build: .
+    container_name: ontology-eval
+    ports:
+      - "20105:5000"
+    environment:
+      - OOPS_URL=http://oops:8080/oops/rest
+    depends_on:
+      - oops
+    restart: unless-stopped
